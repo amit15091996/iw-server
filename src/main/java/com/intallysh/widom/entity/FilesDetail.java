@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -24,6 +25,7 @@ public class FilesDetail {
     private String fileType;
     private String fileExtension;
     private String fileName;
+    private Date reportDate;
 
     private long userId;
 }

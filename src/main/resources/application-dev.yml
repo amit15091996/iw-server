@@ -45,10 +45,10 @@ spring:
 
 logging:
    file:
-    name: "C:/logs/employee-service-error.log"  
+    name: "C:/logs/intallysh-wisdom-service-error.log"
    logback:
     rollingpolicy:
-      file-name-pattern: C:/logs/employee-service-%d{yyyy-MM-dd}.%i.log
+      file-name-pattern: C:/logs/intallysh-wisdom-service-%d{yyyy-MM-dd}.%i.log
 
 files:
   storage: C:/eidikoportal/
