@@ -8,7 +8,7 @@ import java.util.Map;
 @Service
 public interface FilesDetailService {
 
-    public Map<String,Object> uploadFile(FileReqDto fileReqDto);
+    public Map<String,Object> uploadFile(FileReqDto fileReqDto) throws Exception;
 
 
 }

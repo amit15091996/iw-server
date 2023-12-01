@@ -24,7 +24,6 @@ public class JwtTokenHelper {
     // Retrieve Username from jwt token
     public String getUserNameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
-
     }
 
     public Date getExpirationDateFromToken(String token) {
@@ -32,15 +31,12 @@ public class JwtTokenHelper {
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
 
     private Claims getAllClaimsFromToken(String token) {
-
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-
     }
 
     private Boolean isTokenExpired(String token) {

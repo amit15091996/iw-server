@@ -19,7 +19,9 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class FilesDetail {
     @Id
-    private String fileDetailsId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long fileDetailsId;
+    private String transId;
     private String fileLocation;
     private Timestamp fileStoredTime;
     private String fileType;
@@ -27,5 +29,6 @@ public class FilesDetail {
     private String fileName;
     private Date reportDate;
 
+    
     private long userId;
 }
