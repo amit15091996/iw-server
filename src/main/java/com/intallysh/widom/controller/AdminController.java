@@ -22,7 +22,9 @@ public class AdminController {
 	private FilesDetailService filesDetailService;
 
 	@PostMapping("/upload-file")
-	public ResponseEntity<Map<String, Object>> uploadFile(@Valid @ModelAttribute FileReqDto fileReqDto) throws Exception {
+	public ResponseEntity<Map<String, Object>> uploadFile(@Valid @ModelAttribute FileReqDto fileReqDto)
+			throws Exception {
+
 		return ResponseEntity.ok().body(filesDetailService.uploadFile(fileReqDto));
 	}
 

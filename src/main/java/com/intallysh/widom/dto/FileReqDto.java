@@ -7,9 +7,10 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,6 +27,7 @@ public class FileReqDto {
 	@NotBlank(message = "Report Date is mandatory")
     private String reportDate;
 	
-    private List<MultipartFile> files;
+	@NotEmpty(message = "Files cannot be empty")
+    private List<MultipartFile> files = new ArrayList<>();
 
 }

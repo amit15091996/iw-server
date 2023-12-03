@@ -26,6 +26,10 @@ public class Utils {
 				try {
 					Map<String, Object> filesUploading = new HashMap<>();
 					String extension = StringUtils.getFilenameExtension(f.getOriginalFilename());
+					if(extension == null || extension == "") {
+						System.out.println("Invalid File type and file ");
+						continue;
+					}
 					String fileId = transId;
 					String fileName = fileId + "_" + i + "." + extension;
 					byte[] bytes = f.getBytes();
