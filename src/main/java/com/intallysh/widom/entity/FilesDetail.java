@@ -28,7 +28,9 @@ public class FilesDetail {
     private String fileExtension;
     private String fileName;
     private Date reportDate;
-
+    private long modifiedBy;
+    private Timestamp modifiedOn;
+    
     
     private long userId;
 }

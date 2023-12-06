@@ -1,5 +1,7 @@
 package com.intallysh.widom.entity;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +22,8 @@ public class Roles {
 
     private String roleTitle;
     private String roleDesc;
+    
+    
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
