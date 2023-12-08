@@ -21,7 +21,6 @@ public class SecurityUtil {
                 User user = (User) principal;
                 return user;
             }
-
         }
         throw new AuthenticationException("Session Expired");
     }

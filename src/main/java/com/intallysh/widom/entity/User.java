@@ -40,9 +40,11 @@ public class User implements UserDetails {
 	@NotNull
 	private String password;
 	@NotNull
-	private String gst;
+	private String gstNo;
 	private String address;
 
+	private boolean isEnabled;
+	private boolean isDeleted;
 	
 	private long modifiedBy;
     private Timestamp modifiedOn;
@@ -80,7 +82,7 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return this.isEnabled;
 	}
 
 }

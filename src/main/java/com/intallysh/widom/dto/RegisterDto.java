@@ -14,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RegisterDto {
 
+	@Pattern(regexp = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$", message = "Please Enter a valid Phone No")
     @NotBlank(message = "Phone is mandatory")
     private String phone;
     @NotBlank(message = "name is mandatory")
@@ -24,7 +25,7 @@ public class RegisterDto {
     @Pattern(regexp = "^(?=.*[a-z]|[A-Z]|[0-9])(?=\\S+$).{8,}$", message = "Please Enter a valid Password")
     private String password;
     @NotBlank(message = "GST is mandatory")
-    private String gst;
+    private String gstNo;
     private String address;
 
 }

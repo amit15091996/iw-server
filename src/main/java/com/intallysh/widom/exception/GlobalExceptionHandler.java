@@ -58,4 +58,13 @@ public class GlobalExceptionHandler {
 		problemDetail.setType(ConstantValues.ERROR_MESSAGE_URL);
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
 	}
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<ProblemDetail> handleForBiddenException(ForbiddenException ex) {
+		ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+		problemDetail.setProperty(ConstantValues.MESSAGE, ex.getMessage());
+		problemDetail.setProperty(ConstantValues.STATUS, ConstantValues.ERROR_MESSAGE);
+		problemDetail.setStatus(HttpStatus.FORBIDDEN);
+		problemDetail.setType(ConstantValues.ERROR_MESSAGE_URL);
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
+	}
 }
