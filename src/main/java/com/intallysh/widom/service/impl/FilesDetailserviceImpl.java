@@ -63,7 +63,8 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			detail.setFileType(fileReqDto.getFileType());
 			detail.setReportDate(reportDate);
 			detail.setUserId(getCurrentUser().getUserId());
-
+			detail.setModifiedBy(getCurrentUser().getUserId());
+			detail.setModifiedOn(new Timestamp(System.currentTimeMillis()));
 			fileDetailList.add(detail);
 		}
 		try {

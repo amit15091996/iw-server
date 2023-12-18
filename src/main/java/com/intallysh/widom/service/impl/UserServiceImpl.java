@@ -9,6 +9,8 @@ import com.intallysh.widom.exception.ResourceNotProcessedException;
 import com.intallysh.widom.repo.UsersRepo;
 import com.intallysh.widom.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,10 +77,10 @@ public class UserServiceImpl implements UserService {
 		user.setGstNo(updateUserReqDto.getGstNo());
 		user.setPhone(updateUserReqDto.getPhone());
 		user.setName(updateUserReqDto.getPhone());
-		
+
 		user.setModifiedOn(new Timestamp(System.currentTimeMillis()));
 		user.setModifiedBy(SecurityUtil.getCurrentUserDetails().getUserId());
-		
+
 		try {
 			user = usersRepo.save(user);
 			map.put("message", "user updated successfully");
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
 		Map<String, Object> map = new HashMap<>();
 		User user = usersRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotProcessedException("Please Enter a valid User"));
-		user.setDeleted(true);	
+		user.setDeleted(true);
 		user.setEnabled(false);
 		user.setModifiedBy(SecurityUtil.getCurrentUserDetails().getUserId());
 		user.setModifiedOn(new Timestamp(System.currentTimeMillis()));
@@ -114,35 +115,46 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Map<String, Object> getAllUsers(String type) throws AuthenticationException {
+	public Map<String, Object> getAllUsers(String type, Pageable paging) throws AuthenticationException {
 		Map<String, Object> map = new HashMap<>();
-		List<User> list =  new ArrayList<>();
+		Page<User> pageList;
 		try {
-			
+
 			switch (type) {
 			case "NOT_DELETED": {
-				list = usersRepo.findAllByIsDeleted(false);
+				pageList = usersRepo.findAllByIsDeleted(false, paging);
 				break;
 			}
-			case "DELETED":{
-				list = usersRepo.findAllByIsDeleted(true);
+			case "DELETED": {
+				pageList = usersRepo.findAllByIsDeleted(true, paging);
 				break;
 			}
-			case "BLOCKED_USERS":{
-				list = usersRepo.findAllByIsEnabled(false);
+			case "BLOCKED_USERS": {
+				pageList = usersRepo.findAllByIsEnabled(false, paging);
 				break;
 			}
-			case "UN_BLOCKED_USERS":{
-				list = usersRepo.findAllByIsEnabled(true);
+			case "UN_BLOCKED_USERS": {
+				pageList = usersRepo.findAllByIsEnabled(true, paging);
 				break;
 			}
 			default:
-				list = usersRepo.findAll();
+				pageList = usersRepo.findAll(paging);
 				break;
 			}
+			if (pageList.hasContent()) {
+				map.put("usersList", pageList.getContent());
+			}else {
+				map.put("usersList", new ArrayList<>());
+			}
+			map.put("totalPages", pageList.getTotalPages());
+	        map.put("totalResults", pageList.getTotalElements());
+	        map.put("currentPage", pageList.getNumber());
+	        map.put("noOfElements", pageList.getNumberOfElements());
+	        map.put("isLastPage", pageList.isLast());
+	        map.put("isFirstPage", pageList.isFirst());
 			map.put("message", "Fetched Users successfully");
 			map.put("status", "Success");
-			map.put("usersList", list);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("Something went wrong try again ...");
@@ -155,7 +167,7 @@ public class UserServiceImpl implements UserService {
 		Map<String, Object> map = new HashMap<>();
 		User user = usersRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotProcessedException("Please Enter a valid User"));
-		//user.setDeleted(true);	
+		// user.setDeleted(true);
 		user.setEnabled(false);
 		user.setModifiedBy(SecurityUtil.getCurrentUserDetails().getUserId());
 		user.setModifiedOn(new Timestamp(System.currentTimeMillis()));
@@ -176,7 +188,7 @@ public class UserServiceImpl implements UserService {
 		Map<String, Object> map = new HashMap<>();
 		User user = usersRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotProcessedException("Please Enter a valid User"));
-		//user.setDeleted(true);	
+		// user.setDeleted(true);
 		user.setEnabled(true);
 		user.setModifiedBy(SecurityUtil.getCurrentUserDetails().getUserId());
 		user.setModifiedOn(new Timestamp(System.currentTimeMillis()));
@@ -189,6 +201,20 @@ public class UserServiceImpl implements UserService {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("User not unblocked ...");
 		}
+		return map;
+	}
+	@Override
+	public Map<String, Object> getUserByUserName(String  username) throws AuthenticationException {
+		Map<String, Object> map = new HashMap<>();
+		User user = usersRepo.findByEmailOrPhone(username, username);
+		if(user == null) {
+			throw new ResourceNotProcessedException("Not a vaid user ...");
+		}		
+			
+			map.put("message", "user fetched successfully");
+			map.put("status", "Success");
+			map.put("user", user);
+		
 		return map;
 	}
 }

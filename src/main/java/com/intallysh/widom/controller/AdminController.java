@@ -9,6 +9,10 @@ import com.intallysh.widom.service.UserService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -69,10 +73,14 @@ public class AdminController {
 		return ResponseEntity.ok().body(map);
 	}
 	@GetMapping("/users")
-	public ResponseEntity<Map<String, Object>> getAllUsers(@RequestParam String type) {
+	public ResponseEntity<Map<String, Object>> getAllUsers(@RequestParam(defaultValue = "NOT_DELETED") String type,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "userId") String sortBy) {
 		Map<String, Object> map = new HashMap<>();
+		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
 		try {
-			map = userService.getAllUsers(type);
+			map = userService.getAllUsers(type,paging);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("Users not Fetched ...");
