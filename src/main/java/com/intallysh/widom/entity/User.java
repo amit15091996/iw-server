@@ -48,6 +48,8 @@ public class User implements UserDetails {
 	
 	private long modifiedBy;
     private Timestamp modifiedOn;
+    
+    private Timestamp registerDate;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)

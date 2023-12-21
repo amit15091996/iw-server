@@ -47,6 +47,8 @@ public class UserServiceImpl implements UserService {
 		User user = this.modelMapper.map(reqDto, User.class);
 		user.setPassword(passwordEncoder.encode(reqDto.getPassword()));
 		user.setDeleted(false);
+		user.setModifiedOn(new Timestamp(System.currentTimeMillis()));
+		user.setRegisterDate(new Timestamp(System.currentTimeMillis()));
 		Set<Roles> roles = new HashSet<>();
 		roles.add(new Roles(101, "NORMAL_ROLE", "Normal User", user));
 		user.setRoles(roles);
