@@ -29,5 +29,8 @@ public class FileReqDto {
 	
 	@NotEmpty(message = "Files cannot be empty")
     private List<MultipartFile> files = new ArrayList<>();
+	
+	@NotEmpty(message = "File Description is mandatory")
+	private String fileDescription;
 
 }

@@ -30,7 +30,8 @@ public class FilesDetail {
     private Date reportDate;
     private long modifiedBy;
     private Timestamp modifiedOn;
-    
+    private String fileDescription;
+    private int year;
     
     private long userId;
 }

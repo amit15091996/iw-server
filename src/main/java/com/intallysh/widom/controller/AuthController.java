@@ -3,6 +3,7 @@ package com.intallysh.widom.controller;
 import com.intallysh.widom.config.JwtTokenHelper;
 import com.intallysh.widom.dto.LoginRequestDto;
 import com.intallysh.widom.dto.RegisterDto;
+import com.intallysh.widom.entity.User;
 import com.intallysh.widom.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.security.sasl.AuthenticationException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -53,7 +56,15 @@ public class AuthController {
         map.put("status", "Success");
         map.put("userName", userDetails.getUsername());
         map.put("userRoles", userDetails.getAuthorities().stream().map(auth -> auth.getAuthority()));
-
+        try {
+			Map<String,Object> userByUserName = userService.getUserByUserName(loginReq.getUsername());
+			User user= (User)userByUserName.get("user");
+			map.put("name", user.getName());
+		} catch (AuthenticationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//        map.put("name", );
         return ResponseEntity.ok().body(map);
     }
 

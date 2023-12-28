@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 		user.setAddress(updateUserReqDto.getAddress());
 		user.setGstNo(updateUserReqDto.getGstNo());
 		user.setPhone(updateUserReqDto.getPhone());
-		user.setName(updateUserReqDto.getPhone());
+		user.setName(updateUserReqDto.getName());
 
 		user.setModifiedOn(new Timestamp(System.currentTimeMillis()));
 		user.setModifiedBy(SecurityUtil.getCurrentUserDetails().getUserId());
@@ -145,15 +145,15 @@ public class UserServiceImpl implements UserService {
 			}
 			if (pageList.hasContent()) {
 				map.put("usersList", pageList.getContent());
-			}else {
+			} else {
 				map.put("usersList", new ArrayList<>());
 			}
 			map.put("totalPages", pageList.getTotalPages());
-	        map.put("totalResults", pageList.getTotalElements());
-	        map.put("currentPage", pageList.getNumber());
-	        map.put("noOfElements", pageList.getNumberOfElements());
-	        map.put("isLastPage", pageList.isLast());
-	        map.put("isFirstPage", pageList.isFirst());
+			map.put("totalResults", pageList.getTotalElements());
+			map.put("currentPage", pageList.getNumber());
+			map.put("noOfElements", pageList.getNumberOfElements());
+			map.put("isLastPage", pageList.isLast());
+			map.put("isFirstPage", pageList.isFirst());
 			map.put("message", "Fetched Users successfully");
 			map.put("status", "Success");
 
@@ -205,18 +205,18 @@ public class UserServiceImpl implements UserService {
 		}
 		return map;
 	}
+
 	@Override
-	public Map<String, Object> getUserByUserName(String  username) throws AuthenticationException {
+	public Map<String, Object> getUserByUserName(String username) throws AuthenticationException {
 		Map<String, Object> map = new HashMap<>();
 		User user = usersRepo.findByEmailOrPhone(username, username);
-		if(user == null) {
+		if (user == null) {
 			throw new ResourceNotProcessedException("Not a vaid user ...");
-		}		
-			
-			map.put("message", "user fetched successfully");
-			map.put("status", "Success");
-			map.put("user", user);
-		
+		}
+		map.put("message", "user fetched successfully");
+		map.put("status", "Success");
+		map.put("user", user);
+
 		return map;
 	}
 }

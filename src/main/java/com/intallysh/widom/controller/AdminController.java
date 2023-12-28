@@ -14,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,14 +44,81 @@ public class AdminController {
 	
 	@Autowired
 	private UserService userService;
+	
+	
+//	FIle Services Implementations Started
 
 	@PostMapping("/upload-file")
 	public ResponseEntity<Map<String, Object>> uploadFile(@Valid @ModelAttribute FileReqDto fileReqDto)
 			throws Exception {
-
 		return ResponseEntity.ok().body(filesDetailService.uploadFile(fileReqDto));
 	}
 	
+	@GetMapping("/get-uploaded-file-years/{userId}")
+	public ResponseEntity<Map<String, Object>> getUploadedFileYears(@PathVariable long userId)
+			throws Exception {
+		return ResponseEntity.ok().body(filesDetailService.getUploadedFileYears(userId));
+	}
+	@GetMapping("/get-filetransdetail-by-year-and-userid")
+	public ResponseEntity<Map<String, Object>> getFileDetailByUserIdAndYear(@RequestParam long userId,@RequestParam int year,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "reportDate") String sortBy)
+			throws Exception {
+		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by(sortBy).descending());
+		return ResponseEntity.ok().body(filesDetailService.getFileByYearAndUserId(userId, year,paging));
+	}
+	
+	@GetMapping("/get-filedetail-by-transid/{transId}")
+	public ResponseEntity<Map<String, Object>> getFileDetailByTransId(@PathVariable String transId)
+			throws Exception {
+//		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by(sortBy).descending());
+		return ResponseEntity.ok().body(filesDetailService.getFileDetailByTransId(transId));
+	}
+	
+	@GetMapping(path = "/get-file/{fileId}")
+	public ResponseEntity<InputStreamResource> getFile(@PathVariable long fileId) throws Exception {
+	    Map<String, Object> file = filesDetailService.getFile(fileId);
+	    InputStream fileData = (InputStream) file.get("fileData");
+	    String fileName = (String) file.get("fileName");
+	    System.out.println("----- File Name :  --------" + fileName);
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\""); // Wrap filename in quotes
+
+	    // Set Content-Type based on file extension or any other condition
+	    String contentType = determineContentType(fileName);
+	    headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+
+	    return ResponseEntity.ok()
+	            .headers(headers)
+	            .body(new InputStreamResource(fileData));
+	}
+
+
+
+	private String determineContentType(String fileName) {
+	    // You can implement logic to determine Content-Type based on the file extension
+	    // For example, check if the file name ends with ".docx", ".pdf", etc.
+	    if (fileName.endsWith(".docx")) {
+	        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	    } else if (fileName.endsWith(".pdf")) {
+	        return "application/pdf";
+	    }
+	    else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+	        return "image/jpeg";
+	    }else if (fileName.endsWith(".png")) {
+	        return "image/png";
+	    }
+	    // Add more conditions as needed
+
+	    // Default to a generic content type if not determined
+	    return "application/octet-stream";
+	}
+
+//	File Services Implementations Ended
+	
+// User Profile Related Service Started
 	
 	@PutMapping("/user/update-profile")
 	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody @Valid UpdateUserReqDto reqDto) {
@@ -88,7 +159,7 @@ public class AdminController {
 		return ResponseEntity.ok().body(map);
 	}
 	@PostMapping("/block-user/{userId}")
-	public ResponseEntity<Map<String, Object>> blockUser(long userId) {
+	public ResponseEntity<Map<String, Object>> blockUser(@PathVariable long userId) {
 		Map<String, Object> map = new HashMap<>();
 		try {
 			map = userService.blockUser(userId);
@@ -99,7 +170,7 @@ public class AdminController {
 		return ResponseEntity.ok().body(map);
 	}
 	@PostMapping("/unblock-user/{userId}")
-	public ResponseEntity<Map<String, Object>> unBlockUser(long userId) {
+	public ResponseEntity<Map<String, Object>> unBlockUser(@PathVariable long userId) {
 		Map<String, Object> map = new HashMap<>();
 		try {
 			map = userService.unBlockUser(userId);
@@ -109,6 +180,8 @@ public class AdminController {
 		}
 		return ResponseEntity.ok().body(map);
 	}
+	
+//	User Profile Related Service Ended
 	
 	// Implementing getUserBy Id soon because we need files also related to that user
 
