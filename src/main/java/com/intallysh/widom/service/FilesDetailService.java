@@ -1,12 +1,11 @@
 package com.intallysh.widom.service;
 
-import com.intallysh.widom.dto.FileReqDto;
+import java.util.Map;
 
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import com.intallysh.widom.dto.FileReqDto;
 
 @Service
 public interface FilesDetailService {

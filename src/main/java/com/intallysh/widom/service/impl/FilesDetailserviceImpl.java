@@ -54,7 +54,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		Map<String, Object> map = new HashMap<>();
 		Date reportDate = Utils.stringToDate(fileReqDto.getReportDate());
 		int reportYear = reportDate.toLocalDate().getYear();
-		String folder = fileLocation + getFolderType() + reportYear+"/"+fileReqDto.getFileType();
+		String folder = fileLocation + getFolderType() + reportYear + "/" + fileReqDto.getFileType();
 		List<Map<String, Object>> uploadFiles = Utils.uploadFiles(fileReqDto.getFiles(), folder);
 		List<FilesDetail> fileDetailList = new ArrayList<>();
 		List<String> filesPath = new ArrayList<>();
@@ -84,7 +84,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		}
 		try {
 			List<FilesDetail> savedFiles = filesDetailRepo.saveAll(fileDetailList);
-
+			map.put("result", savedFiles);
 			if (savedFiles.size() <= 0) {
 				Utils.deleteFiles(filesPath);
 				throw new ResourceNotProcessedException("File not uploaded ...");
@@ -96,6 +96,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		}
 		map.put("status", "Success");
 		map.put("message", "File Uploaded Successfully");
+
 		return map;
 	}
 
@@ -149,6 +150,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			if (fileDetails.hasContent()) {
 				map.put("message", "Data Fetched Successfully ...");
 				map.put("fileTransDetails", fileDetails.getContent());
+				System.out.println("---- "+map.put("fileTransDetails", fileDetails));
 			} else {
 				map.put("message", "Data not available ...");
 				map.put("fileTransDetails", new ArrayList<>());
@@ -159,6 +161,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			map.put("noOfElements", fileDetails.getNumberOfElements());
 			map.put("isLastPage", fileDetails.isLast());
 			map.put("isFirstPage", fileDetails.isFirst());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("Something went wrong try again ...");
@@ -189,12 +192,13 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 	}
 
 	@Override
-	public Map<String, Object> getFile(long fileId) {	
+	public Map<String, Object> getFile(long fileId) {
 		Map<String, Object> map = new HashMap<>();
-		FilesDetail filesDetail = this.filesDetailRepo.findById(fileId).orElseThrow(() -> new ResourceNotProcessedException("File is not Available"));
-		String file = filesDetail.getFileLocation()+"/"+filesDetail.getFileName();
-		System.out.println("file ------ : "+file);
-		 map.put("fileName", filesDetail.getFileName());
+		FilesDetail filesDetail = this.filesDetailRepo.findById(fileId)
+				.orElseThrow(() -> new ResourceNotProcessedException("File is not Available"));
+		String file = filesDetail.getFileLocation() + "/" + filesDetail.getFileName();
+		System.out.println("file ------ : " + file);
+		map.put("fileName", filesDetail.getFileName());
 		try {
 			InputStream in = new FileInputStream(file);
 			map.put("fileData", in);

@@ -12,11 +12,11 @@ spring:
 
 
     datasource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: eidiko@123
         url: jdbc:mysql://localhost:3306/intallyshwisdom?createDatabaseIfNotExist=true
 #        url: jdbc:mysql://192.168.2.47:3306/test
-        username: eidiko
+        username: amit
+        password: 12345
+        driver-class-name: com.mysql.cj.jdbc.Driver
 
      
     mail:
