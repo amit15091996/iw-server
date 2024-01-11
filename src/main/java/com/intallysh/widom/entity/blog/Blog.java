@@ -20,7 +20,7 @@ public class Blog {
 	private String blogId;
 	@Column(nullable = false)
 	private String blogTitle;
-	@Column(nullable = false, length = 10000000)
+	@Column(nullable = false, length = 1000)
 	private String blogDesc1;
 //	private String blogDesc2;
 //	private String blogDesc3;

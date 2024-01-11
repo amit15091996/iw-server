@@ -24,10 +24,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intallysh.widom.config.SecurityUtil;
+import com.intallysh.widom.dto.ChangePasswordDto;
 import com.intallysh.widom.dto.FileReqDto;
 import com.intallysh.widom.dto.UpdateUserReqDto;
 import com.intallysh.widom.entity.User;
 import com.intallysh.widom.exception.ForbiddenException;
+import com.intallysh.widom.exception.ResourceNotProcessedException;
 import com.intallysh.widom.service.FilesDetailService;
 import com.intallysh.widom.service.UserService;
 
@@ -134,6 +136,18 @@ public class UserController {
 
 	    // Default to a generic content type if not determined
 	    return "application/octet-stream";
+	}
+	
+	@PostMapping("/change-password")
+	private ResponseEntity<Map<String, Object>> changePassword(@Valid @RequestBody ChangePasswordDto changePasswordDto){
+		try {
+			long userId = SecurityUtil.getCurrentUserDetails().getUserId();
+			return ResponseEntity.ok().body(this.userService.ChangePassword(userId, changePasswordDto));
+		} catch (AuthenticationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		throw new ResourceNotProcessedException("Password not changed");
 	}
 	
 }

@@ -1,6 +1,7 @@
 package com.intallysh.widom.service.impl;
 
 import com.intallysh.widom.config.SecurityUtil;
+import com.intallysh.widom.dto.ChangePasswordDto;
 import com.intallysh.widom.dto.RegisterDto;
 import com.intallysh.widom.dto.UpdateUserReqDto;
 import com.intallysh.widom.entity.Roles;
@@ -8,6 +9,9 @@ import com.intallysh.widom.entity.User;
 import com.intallysh.widom.exception.ResourceNotProcessedException;
 import com.intallysh.widom.repo.UsersRepo;
 import com.intallysh.widom.service.UserService;
+import com.intallysh.widom.util.ConstantValues;
+import com.intallysh.widom.util.Utils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +39,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private Utils utils;
 
 	@Override
 	public Map<String, Object> registerUser(RegisterDto reqDto) {
@@ -219,4 +226,61 @@ public class UserServiceImpl implements UserService {
 
 		return map;
 	}
+
+	@Override
+	public Map<String, Object> forgotPassword(String username) {
+		Map<String, Object> map = new HashMap<>();
+		
+		User user = this.usersRepo.findByEmailOrPhone(username, username);
+		if(user == null) {
+			throw new ResourceNotProcessedException("Not a valid User !");
+		}
+		String generateRandomPassword = Utils.generateRandomPassword(10);
+		System.out.println("Random Generated Password : " + generateRandomPassword);
+		
+		user.setPassword(passwordEncoder.encode(generateRandomPassword));
+		String forgotPasswordMailTemplate = ConstantValues.FORGOT_PASSWORD_MAIL_TEMPLATE;
+		forgotPasswordMailTemplate = forgotPasswordMailTemplate.replace("[UserName]", user.getEmail());
+		forgotPasswordMailTemplate = forgotPasswordMailTemplate.replace("[Name]", user.getName());
+		forgotPasswordMailTemplate = forgotPasswordMailTemplate.replace("[Password]", generateRandomPassword);
+		boolean sendSimpleMail = utils.sendSimpleMail(user.getEmail(), "Intallysh Wisdom Password Reset", forgotPasswordMailTemplate);
+		if(sendSimpleMail) {
+			try {
+				usersRepo.save(user);
+				map.put("status", "Success");
+				map.put("message", "Password Sent to your mail : "+ user.getEmail());
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			throw new ResourceNotProcessedException("Password not updated ...");
+		}
+		
+		return map;
+	}
+	
+	@Override
+	public Map<String, Object> ChangePassword(long userId, ChangePasswordDto changePasswordDto) {
+		Map<String, Object> map = new HashMap<>();
+		if(!changePasswordDto.getNewPassword() .equals(changePasswordDto.getConfirmPassword()) ) {
+			throw new ResourceNotProcessedException("New Password and confirm password should be same ...");
+		} 
+		User user = usersRepo.findById(userId)
+				.orElseThrow(() -> new ResourceNotProcessedException("Please Enter a valid User"));
+		if(! passwordEncoder.matches(changePasswordDto.getNewPassword(), user.getPassword())) {
+			throw new ResourceNotProcessedException("You have entered incorrect old password ...");
+		}
+		user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+		try {
+			usersRepo.save(user);
+			map.put("status", "Success");
+			map.put("message", "Your Password has been changed ..");
+		}catch(Exception e) {
+			e.printStackTrace();
+			throw new ResourceNotProcessedException("Password not updated ...");
+		}
+		return map;
+	}
+	
 }

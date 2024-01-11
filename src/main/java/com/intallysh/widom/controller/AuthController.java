@@ -14,6 +14,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -88,5 +89,12 @@ public class AuthController {
 
 
         return ResponseEntity.status(201).body(userService.registerUser(req));
+    }
+    
+    @PostMapping("/forgot-password/{userName}")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@PathVariable String userName){
+
+
+        return ResponseEntity.status(201).body(userService.forgotPassword(userName));
     }
 }
