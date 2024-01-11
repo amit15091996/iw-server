@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -35,6 +36,7 @@ import java.util.Map;
 import javax.security.sasl.AuthenticationException;
 
 @RestController
+@PreAuthorize("hasAuthority('ADMIN_ROLE')")
 @RequestMapping("/api/v1/admin")
 public class AdminController {
 
@@ -47,6 +49,7 @@ public class AdminController {
 	
 //	FIle Services Implementations Started
 
+	
 	@PostMapping("/upload-file")
 	public ResponseEntity<Map<String, Object>> uploadFile(@Valid @ModelAttribute FileReqDto fileReqDto)
 			throws Exception {
