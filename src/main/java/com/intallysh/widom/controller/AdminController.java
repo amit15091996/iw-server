@@ -149,7 +149,8 @@ public class AdminController {
 	public ResponseEntity<Map<String, Object>> getAllUsers(@RequestParam(defaultValue = "NOT_DELETED") String type,
 			@RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "userId") String sortBy) {
+            @RequestParam(defaultValue = "userId") String sortBy
+            ) {
 		Map<String, Object> map = new HashMap<>();
 		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
 		try {

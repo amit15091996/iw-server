@@ -35,7 +35,7 @@ import javax.security.sasl.AuthenticationException;
 @Service
 public class FilesDetailserviceImpl implements FilesDetailService {
 
-	public String fileLocation = "C:/intallysh-wisdom/";
+	public String fileLocation = ConstantValues.FILE_LOCATION;
 
 	@Autowired
 	private FilesDetailRepo filesDetailRepo;

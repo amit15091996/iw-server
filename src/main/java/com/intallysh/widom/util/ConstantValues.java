@@ -9,6 +9,8 @@ public class ConstantValues {
 	public static final String UPLOADED_DATE = "uploadedDate";
 	public static final String FILE_ID = "fileId";	
 	
+	public static final String FILE_LOCATION = "C:/intallysh-wisdom/";
+	
 	public static final String FORGOT_PASSWORD_MAIL_TEMPLATE = "\r\n"
 			+ "Hi [Name], <br /> \r\n" 
 			+ "\r\n"

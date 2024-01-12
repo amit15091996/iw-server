@@ -15,7 +15,9 @@ import com.intallysh.widom.exception.ResourceNotProcessedException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -157,6 +159,19 @@ public class Utils {
 		
 
 	}
+	
+	public static String convertToBase64(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+
+        byte[] bytes = outputStream.toByteArray();
+        return Base64.getEncoder().encodeToString(bytes);
+    }
 	
 
 }

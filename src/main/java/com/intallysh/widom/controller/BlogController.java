@@ -4,7 +4,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,7 +32,7 @@ public class BlogController {
 	}
 
 	@PostMapping("/create-blog")
-	public ResponseEntity<Map<String, Object>> createBlog(@RequestBody BlogReqDto blogReqDto) {
+	public ResponseEntity<Map<String, Object>> createBlog(@ModelAttribute BlogReqDto blogReqDto) {
 		return ResponseEntity.ok().body(this.blogService.createBlog(blogReqDto));
 	}
 	
@@ -41,5 +43,16 @@ public class BlogController {
 			throw new ResourceNotProcessedException("Blog Id is required ...");
 		}
 		return ResponseEntity.ok().body(this.blogService.createBlog(blogReqDto));
+	}
+	
+	@DeleteMapping("/delete-blog/{blogId}")
+	public ResponseEntity<Map<String, Object>> deleteBlog(@PathVariable String blogId) {
+		
+		return ResponseEntity.ok().body(this.blogService.deleteBlog(blogId));
+	}
+	
+	@GetMapping("/blogs")
+	public ResponseEntity<Map<String, Object>> getBlogs(){
+		return null;
 	}
 }
