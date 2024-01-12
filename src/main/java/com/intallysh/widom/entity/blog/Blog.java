@@ -32,6 +32,7 @@ public class Blog {
 	private Timestamp blogUploadedOn;
 	private Timestamp modifiedOn;
 	private String modifiedBy;
+	public boolean isDeleted;
 	
 	private String fileLocation;
 

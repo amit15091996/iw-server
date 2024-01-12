@@ -65,9 +65,17 @@ public class AdminController {
 	public ResponseEntity<Map<String, Object>> getFileDetailByUserIdAndYear(@RequestParam long userId,@RequestParam int year,
 			@RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "reportDate") String sortBy)
+            @RequestParam(defaultValue = "reportDate") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortingOrder
+			)
 			throws Exception {
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by(sortBy).descending());
+		Sort by = Sort.by(sortBy);
+		if(sortingOrder.equals("ASC")) {
+			by = Sort.by(sortBy).ascending();
+		}else {
+			by = Sort.by(sortBy).descending();
+		}
+		Pageable paging = PageRequest.of(pageNo, pageSize,by);
 		return ResponseEntity.ok().body(filesDetailService.getFileByYearAndUserId(userId, year,paging));
 	}
 	
@@ -149,10 +157,17 @@ public class AdminController {
 	public ResponseEntity<Map<String, Object>> getAllUsers(@RequestParam(defaultValue = "NOT_DELETED") String type,
 			@RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "userId") String sortBy
+            @RequestParam(defaultValue = "userId") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortingOrder
             ) {
 		Map<String, Object> map = new HashMap<>();
-		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+		Sort by = Sort.by(sortBy);
+		if(sortingOrder.equals("ASC")) {
+			by = Sort.by(sortBy).ascending();
+		}else {
+			by = Sort.by(sortBy).descending();
+		}
+		Pageable paging = PageRequest.of(pageNo, pageSize, by);
 		try {
 			map = userService.getAllUsers(type,paging);
 		} catch (Exception e) {
