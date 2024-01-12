@@ -14,14 +14,14 @@ spring:
     datasource:
         url: jdbc:mysql://localhost:3306/intallyshwisdom?createDatabaseIfNotExist=true
 #        url: jdbc:mysql://192.168.2.47:3306/test
-        username: amit
-        password: 12345
+        username: eidiko
+        password: eidiko@123
         driver-class-name: com.mysql.cj.jdbc.Driver
 
      
     mail:
         host: smtp.gmail.com
-        password: rbeuaiebaljmxegp
+        password: zlalqegllmojgzlw
         port: 587
         properties:
             mail:
@@ -29,7 +29,7 @@ spring:
                     auth: true
                     starttls:
                         enable: true
-        username: vikaskumar.gupta@eidiko.com       
+        username: emailservice199@gmail.com       
         
         
     jpa: 
