@@ -79,6 +79,24 @@ public class AdminController {
 		return ResponseEntity.ok().body(filesDetailService.getFileByYearAndUserId(userId, year,paging));
 	}
 	
+	@GetMapping("/get-all-filetransdetail")
+	public ResponseEntity<Map<String, Object>> getAllFileDetail(
+			@RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "reportDate") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortingOrder
+			)
+			throws Exception {
+		Sort by = Sort.by(sortBy);
+		if(sortingOrder.equals("ASC")) {
+			by = Sort.by(sortBy).ascending();
+		}else {
+			by = Sort.by(sortBy).descending();
+		}
+		Pageable paging = PageRequest.of(pageNo, pageSize,by);
+		return ResponseEntity.ok().body(filesDetailService.getAllFile(paging));
+	}
+	
 	@GetMapping("/get-filedetail-by-transid/{transId}")
 	public ResponseEntity<Map<String, Object>> getFileDetailByTransId(@PathVariable String transId)
 			throws Exception {

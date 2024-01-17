@@ -7,13 +7,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,11 +35,13 @@ public class BlogController {
 		return ResponseEntity.ok().body(this.blogService.getBlog(blogId));
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN_ROLE')")
 	@PostMapping("/create-blog")
 	public ResponseEntity<Map<String, Object>> createBlog(@ModelAttribute BlogReqDto blogReqDto) {
 		return ResponseEntity.ok().body(this.blogService.createBlog(blogReqDto));
 	}
 	
+	@PreAuthorize("hasAuthority('ADMIN_ROLE')")
 	@PutMapping("/update-blog")
 	public ResponseEntity<Map<String, Object>> updateBlog(@ModelAttribute BlogReqDto blogReqDto) {
 		String blogId = blogReqDto.getBlogId();
@@ -49,6 +51,7 @@ public class BlogController {
 		return ResponseEntity.ok().body(this.blogService.updateBlog(blogReqDto));
 	}
 	
+	@PreAuthorize("hasAuthority('ADMIN_ROLE')")
 	@DeleteMapping("/delete-blog/{blogId}")
 	public ResponseEntity<Map<String, Object>> deleteBlog(@PathVariable String blogId) {
 		
