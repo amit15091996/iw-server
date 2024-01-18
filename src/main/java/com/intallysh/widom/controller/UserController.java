@@ -96,6 +96,21 @@ public class UserController {
 		Pageable paging = PageRequest.of(pageNo, pageSize, by);
 		return ResponseEntity.ok().body(filesDetailService.getFileByYearAndUserId(userId, year, paging));
 	}
+	@GetMapping("/get-file-transdetail-by-userid")
+	public ResponseEntity<Map<String, Object>> getFileDetailByUserId(
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize,
+			@RequestParam(defaultValue = "reportDate") String sortBy,
+			@RequestParam(defaultValue = "reportDate") String sortingOrder) throws Exception {
+		long userId = SecurityUtil.getCurrentUserDetails().getUserId();
+		Sort by = Sort.by(sortBy);
+		if (sortingOrder.equals("ASC")) {
+			by = Sort.by(sortBy).ascending();
+		} else {
+			by = Sort.by(sortBy).descending();
+		}
+		Pageable paging = PageRequest.of(pageNo, pageSize, by);
+		return ResponseEntity.ok().body(filesDetailService.getFileByUserId(userId, paging));
+	}
 
 	@GetMapping("/get-filedetail-by-transid/{transId}")
 	public ResponseEntity<Map<String, Object>> getFileDetailByTransId(@PathVariable String transId) throws Exception {

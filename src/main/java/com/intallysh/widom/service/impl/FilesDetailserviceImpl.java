@@ -237,4 +237,32 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		return map;
 	}
 
+	@Override
+	public Map<String, Object> getFileByUserId(long userId, Pageable paging) {
+		Map<String, Object> map = new HashMap<>();
+		try {
+			Page<FileTransDetails> fileDetails = fileTransDetailsRepo.findByUserId(userId, paging);
+			if (fileDetails.hasContent()) {
+				map.put("message", "Data Fetched Successfully ...");
+				map.put("fileTransDetails", fileDetails.getContent());
+				System.out.println("---- "+map.put("fileTransDetails", fileDetails));
+			} else {
+				map.put("message", "Data not available ...");
+				map.put("fileTransDetails", new ArrayList<>());
+			}
+			map.put("totalPages", fileDetails.getTotalPages());
+			map.put("totalResults", fileDetails.getTotalElements());
+			map.put("currentPage", fileDetails.getNumber());
+			map.put("noOfElements", fileDetails.getNumberOfElements());
+			map.put("isLastPage", fileDetails.isLast());
+			map.put("isFirstPage", fileDetails.isFirst());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResourceNotProcessedException("Something went wrong try again ...");
+		}
+		map.put("status", "Success");
+		return map;
+	}
+
 }

@@ -10,4 +10,6 @@ public interface FileTransDetailsRepo extends JpaRepository<FileTransDetails, Lo
 
 	Page<FileTransDetails> findByUserIdAndYear(long userId,int year, Pageable pageable);
 	
+	Page<FileTransDetails> findByUserId(long userId, Pageable pageable);
+	
 }
