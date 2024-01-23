@@ -5,12 +5,16 @@ import com.intallysh.widom.dto.FileReqDto;
 import com.intallysh.widom.entity.FileTransDetails;
 import com.intallysh.widom.entity.FilesDetail;
 import com.intallysh.widom.entity.User;
+import com.intallysh.widom.entity.UserActivity;
 import com.intallysh.widom.exception.ResourceNotProcessedException;
 import com.intallysh.widom.repo.FileTransDetailsRepo;
 import com.intallysh.widom.repo.FilesDetailRepo;
+import com.intallysh.widom.repo.UserActivityRepo;
 import com.intallysh.widom.service.FilesDetailService;
 import com.intallysh.widom.util.ConstantValues;
 import com.intallysh.widom.util.Utils;
+
+import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +33,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.security.sasl.AuthenticationException;
 
@@ -42,12 +47,16 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 
 	@Autowired
 	private FileTransDetailsRepo fileTransDetailsRepo;
+	
+	@Autowired
+	private UserActivityRepo activityRepo;
 
 	private User getCurrentUser() throws AuthenticationException {
 		return SecurityUtil.getCurrentUserDetails();
 	}
 
 	@Override
+	@Transactional(rollbackOn = {Exception.class})
 	public Map<String, Object> uploadFile(FileReqDto fileReqDto) throws Exception {
 		if (fileReqDto.getFiles().size() > 10)
 			throw new ResourceNotProcessedException("You can upload 10 files at a time");
@@ -66,7 +75,6 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			String fileDesc = fileReqDto.getFileDescription();
 			String filePath = folderName + "/" + fileName;
 			filesPath.add(filePath);
-
 			FilesDetail detail = new FilesDetail();
 			detail.setTransId(fileId);
 			detail.setFileExtension(StringUtils.getFilenameExtension(fileName));
@@ -84,6 +92,16 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		}
 		try {
 			List<FilesDetail> savedFiles = filesDetailRepo.saveAll(fileDetailList);
+			UserActivity activity = UserActivity.builder()
+					.userActId(UUID.randomUUID().toString())
+					.activityDoneBy(getCurrentUser().getUserId())
+					.activityDone("Uploaded Files")
+					.modifiedOn(new Timestamp(System.currentTimeMillis()))
+					.userId(getCurrentUser().getUserId())
+					.isRead(false)
+					.fileTransId(savedFiles.get(0).getTransId())
+					.build();
+			this.activityRepo.save(activity);
 			map.put("result", savedFiles);
 			if (savedFiles.size() <= 0) {
 				Utils.deleteFiles(filesPath);

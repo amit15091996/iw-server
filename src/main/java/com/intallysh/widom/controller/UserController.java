@@ -31,6 +31,7 @@ import com.intallysh.widom.entity.User;
 import com.intallysh.widom.exception.ForbiddenException;
 import com.intallysh.widom.exception.ResourceNotProcessedException;
 import com.intallysh.widom.service.FilesDetailService;
+import com.intallysh.widom.service.UserActivityService;
 import com.intallysh.widom.service.UserService;
 
 import jakarta.validation.Valid;
@@ -44,6 +45,9 @@ public class UserController {
 
 	@Autowired
 	private FilesDetailService filesDetailService;
+	
+	@Autowired
+	private UserActivityService activityService;
 
 	@PutMapping("/update-profile")
 	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody @Valid UpdateUserReqDto reqDto) {
@@ -166,5 +170,27 @@ public class UserController {
 		}
 		throw new ResourceNotProcessedException("Password not changed");
 	}
+	
+	@GetMapping("/get-user-activity")
+	public ResponseEntity<Map<String, Object>> getActivityChanges(
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize,
+			@RequestParam(defaultValue = "modifiedOn") String sortBy,
+			@RequestParam(defaultValue = "DESC") String sortingOrder) throws Exception {
+		long userId = SecurityUtil.getCurrentUserDetails().getUserId();
+		Sort by = Sort.by(sortBy);
+		if (sortingOrder.equals("ASC")) {
+			by = Sort.by(sortBy).ascending();
+		} else {
+			by = Sort.by(sortBy).descending();
+		}
+		Pageable paging = PageRequest.of(pageNo, pageSize, by);
+		return ResponseEntity.ok().body(activityService.getUserActivity(userId, paging));
+	}
+	
+	@GetMapping("/get-counts")
+	public ResponseEntity<Map<String, Object>> getActivityChanges(){
+		return ResponseEntity.ok().body(this.userService.getCounts());
+	}
+	
 
 }

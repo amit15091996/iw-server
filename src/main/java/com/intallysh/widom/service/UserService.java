@@ -24,6 +24,8 @@ public interface UserService {
     public Map<String, Object> blockUser(long userId)throws AuthenticationException ;
     public Map<String, Object> unBlockUser(long userId)throws AuthenticationException ;
     public Map<String, Object> getUserByUserName(String  username) throws AuthenticationException;
-	Map<String, Object> ChangePassword(long userId, ChangePasswordDto changePasswordDto);
-    
+	public Map<String, Object> ChangePassword(long userId, ChangePasswordDto changePasswordDto);
+	public Map<String, Object> getCounts();
+	public Map<String, Object> searchUser(String keyword);
+	
 }

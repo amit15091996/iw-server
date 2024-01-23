@@ -1,10 +1,12 @@
 package com.intallysh.widom.controller;
 
+import com.intallysh.widom.config.SecurityUtil;
 import com.intallysh.widom.dto.FileReqDto;
 import com.intallysh.widom.dto.UpdateUserReqDto;
 import com.intallysh.widom.exception.ForbiddenException;
 import com.intallysh.widom.exception.ResourceNotProcessedException;
 import com.intallysh.widom.service.FilesDetailService;
+import com.intallysh.widom.service.UserActivityService;
 import com.intallysh.widom.service.UserService;
 
 import jakarta.validation.Valid;
@@ -39,6 +41,9 @@ import javax.security.sasl.AuthenticationException;
 @PreAuthorize("hasAuthority('ADMIN_ROLE')")
 @RequestMapping("/api/v1/admin")
 public class AdminController {
+	
+	@Autowired
+	private UserActivityService activityService;
 
 	@Autowired
 	private FilesDetailService filesDetailService;
@@ -218,7 +223,23 @@ public class AdminController {
 	}
 	
 //	User Profile Related Service Ended
+
 	
-	// Implementing getUserBy Id soon because we need files also related to that user
+	@GetMapping("/get-user-activity/{userId}")
+	public ResponseEntity<Map<String, Object>> getActivityChanges(
+			@PathVariable long userId,
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize,
+			@RequestParam(defaultValue = "reportDate") String sortBy,
+			@RequestParam(defaultValue = "reportDate") String sortingOrder) throws Exception {
+		
+		Sort by = Sort.by(sortBy);
+		if (sortingOrder.equals("ASC")) {
+			by = Sort.by(sortBy).ascending();
+		} else {
+			by = Sort.by(sortBy).descending();
+		}
+		Pageable paging = PageRequest.of(pageNo, pageSize, by);
+		return ResponseEntity.ok().body(activityService.getUserActivity(userId, paging));
+	}
 
 }
