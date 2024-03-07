@@ -353,7 +353,7 @@ public class UserServiceImpl implements UserService {
 		map.put("status", "Success");
 		map.put("message", "Count fetched successfully");
 		map.put("usersCount", usersCount);
-		map.put("blogsCOunt", blogsCount);
+		map.put("blogsCount", blogsCount);
 		map.put("filesCount", filesCount);
 
 		return map;

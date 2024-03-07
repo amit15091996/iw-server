@@ -15,4 +15,6 @@ public interface FilesDetailRepo extends JpaRepository<FilesDetail, Long> {
 
 	List<FilesDetail> findByTransId(String transId);
 	
+	
+	
 }

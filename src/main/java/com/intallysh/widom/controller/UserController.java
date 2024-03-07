@@ -91,6 +91,7 @@ public class UserController {
 			@RequestParam(defaultValue = "reportDate") String sortBy,
 			@RequestParam(defaultValue = "reportDate") String sortingOrder) throws Exception {
 		long userId = SecurityUtil.getCurrentUserDetails().getUserId();
+		System.out.println("userId------------------- "+ userId);
 		Sort by = Sort.by(sortBy);
 		if (sortingOrder.equals("ASC")) {
 			by = Sort.by(sortBy).ascending();

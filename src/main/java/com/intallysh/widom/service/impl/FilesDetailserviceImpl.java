@@ -47,7 +47,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 
 	@Autowired
 	private FileTransDetailsRepo fileTransDetailsRepo;
-	
+
 	@Autowired
 	private UserActivityRepo activityRepo;
 
@@ -56,7 +56,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 	}
 
 	@Override
-	@Transactional(rollbackOn = {Exception.class})
+	@Transactional(rollbackOn = { Exception.class })
 	public Map<String, Object> uploadFile(FileReqDto fileReqDto) throws Exception {
 		if (fileReqDto.getFiles().size() > 10)
 			throw new ResourceNotProcessedException("You can upload 10 files at a time");
@@ -92,15 +92,67 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		}
 		try {
 			List<FilesDetail> savedFiles = filesDetailRepo.saveAll(fileDetailList);
-			UserActivity activity = UserActivity.builder()
-					.userActId(UUID.randomUUID().toString())
-					.activityDoneBy(getCurrentUser().getUserId())
-					.activityDone("Uploaded Files")
-					.modifiedOn(new Timestamp(System.currentTimeMillis()))
-					.userId(getCurrentUser().getUserId())
-					.isRead(false)
-					.fileTransId(savedFiles.get(0).getTransId())
-					.build();
+			UserActivity activity = UserActivity.builder().userActId(UUID.randomUUID().toString())
+					.activityDoneBy(getCurrentUser().getUserId()).activityDone("Uploaded Files")
+					.modifiedOn(new Timestamp(System.currentTimeMillis())).userId(getCurrentUser().getUserId())
+					.isRead(false).fileTransId(savedFiles.get(0).getTransId()).build();
+			this.activityRepo.save(activity);
+			map.put("result", savedFiles);
+			if (savedFiles.size() <= 0) {
+				Utils.deleteFiles(filesPath);
+				throw new ResourceNotProcessedException("File not uploaded ...");
+			}
+		} catch (Exception e) {
+			System.err.println("Error occurred: " + e.getMessage());
+			Utils.deleteFiles(filesPath);
+			throw new ResourceNotProcessedException("File not uploaded ...");
+		}
+		map.put("status", "Success");
+		map.put("message", "File Uploaded Successfully");
+
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> uploadFileByAdmin(FileReqDto fileReqDto, long userId) throws Exception {
+		if (fileReqDto.getFiles().size() > 10)
+			throw new ResourceNotProcessedException("You can upload 10 files at a time");
+		Map<String, Object> map = new HashMap<>();
+		Date reportDate = Utils.stringToDate(fileReqDto.getReportDate());
+		int reportYear = reportDate.toLocalDate().getYear();
+		String folder = fileLocation + getFolderType() + reportYear + "/" + fileReqDto.getFileType();
+		List<Map<String, Object>> uploadFiles = Utils.uploadFiles(fileReqDto.getFiles(), folder);
+		List<FilesDetail> fileDetailList = new ArrayList<>();
+		List<String> filesPath = new ArrayList<>();
+		for (Map<String, Object> file : uploadFiles) {
+			String fileName = (String) file.get(ConstantValues.FILE_NAME);
+			String folderName = (String) file.get(ConstantValues.FOLDER);
+			Timestamp uploadedDate = (Timestamp) file.get(ConstantValues.UPLOADED_DATE);
+			String fileId = (String) file.get(ConstantValues.FILE_ID);
+			String fileDesc = fileReqDto.getFileDescription();
+			String filePath = folderName + "/" + fileName;
+			filesPath.add(filePath);
+			FilesDetail detail = new FilesDetail();
+			detail.setTransId(fileId);
+			detail.setFileExtension(StringUtils.getFilenameExtension(fileName));
+			detail.setFileLocation(folderName);
+			detail.setFileName(fileName);
+			detail.setFileStoredTime(uploadedDate);
+			detail.setFileType(fileReqDto.getFileType());
+			detail.setReportDate(reportDate);
+			detail.setUserId(userId);
+			detail.setModifiedBy(getCurrentUser().getUserId());
+			detail.setModifiedOn(new Timestamp(System.currentTimeMillis()));
+			detail.setFileDescription(fileDesc);
+			detail.setYear(reportYear);
+			fileDetailList.add(detail);
+		}
+		try {
+			List<FilesDetail> savedFiles = filesDetailRepo.saveAll(fileDetailList);
+			UserActivity activity = UserActivity.builder().userActId(UUID.randomUUID().toString())
+					.activityDoneBy(getCurrentUser().getUserId()).activityDone("Uploaded Files")
+					.modifiedOn(new Timestamp(System.currentTimeMillis())).userId(getCurrentUser().getUserId())
+					.isRead(false).fileTransId(savedFiles.get(0).getTransId()).build();
 			this.activityRepo.save(activity);
 			map.put("result", savedFiles);
 			if (savedFiles.size() <= 0) {
@@ -168,7 +220,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			if (fileDetails.hasContent()) {
 				map.put("message", "Data Fetched Successfully ...");
 				map.put("fileTransDetails", fileDetails.getContent());
-				System.out.println("---- "+map.put("fileTransDetails", fileDetails));
+				System.out.println("---- " + map.put("fileTransDetails", fileDetails));
 			} else {
 				map.put("message", "Data not available ...");
 				map.put("fileTransDetails", new ArrayList<>());
@@ -179,7 +231,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			map.put("noOfElements", fileDetails.getNumberOfElements());
 			map.put("isLastPage", fileDetails.isLast());
 			map.put("isFirstPage", fileDetails.isFirst());
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("Something went wrong try again ...");
@@ -228,14 +280,14 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 	}
 
 	@Override
-	public Map<String, Object> getAllFile( Pageable paging) {
+	public Map<String, Object> getAllFile(Pageable paging) {
 		Map<String, Object> map = new HashMap<>();
 		try {
 			Page<FileTransDetails> fileDetails = fileTransDetailsRepo.findAll(paging);
 			if (fileDetails.hasContent()) {
 				map.put("message", "Data Fetched Successfully ...");
 				map.put("fileTransDetails", fileDetails.getContent());
-				System.out.println("---- "+map.put("fileTransDetails", fileDetails));
+				System.out.println("---- " + map.put("fileTransDetails", fileDetails));
 			} else {
 				map.put("message", "Data not available ...");
 				map.put("fileTransDetails", new ArrayList<>());
@@ -246,7 +298,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			map.put("noOfElements", fileDetails.getNumberOfElements());
 			map.put("isLastPage", fileDetails.isLast());
 			map.put("isFirstPage", fileDetails.isFirst());
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("Something went wrong try again ...");
@@ -263,7 +315,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			if (fileDetails.hasContent()) {
 				map.put("message", "Data Fetched Successfully ...");
 				map.put("fileTransDetails", fileDetails.getContent());
-				System.out.println("---- "+map.put("fileTransDetails", fileDetails));
+				System.out.println("---- " + map.put("fileTransDetails", fileDetails));
 			} else {
 				map.put("message", "Data not available ...");
 				map.put("fileTransDetails", new ArrayList<>());
@@ -274,7 +326,7 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			map.put("noOfElements", fileDetails.getNumberOfElements());
 			map.put("isLastPage", fileDetails.isLast());
 			map.put("isFirstPage", fileDetails.isFirst());
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceNotProcessedException("Something went wrong try again ...");
