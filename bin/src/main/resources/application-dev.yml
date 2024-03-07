@@ -1,0 +1,56 @@
+
+server:
+  port: 9190
+
+spring:
+    servlet:
+      multipart:
+        enabled: true
+        max-file-size: 5MB
+        max-request-size: 5MB
+          
+
+
+    datasource:
+        url: jdbc:mysql://localhost:3306/intallyshwisdom?createDatabaseIfNotExist=true
+#        url: jdbc:mysql://192.168.2.47:3306/test
+        username: eidiko
+        password: eidiko@123
+        driver-class-name: com.mysql.cj.jdbc.Driver
+
+     
+    mail:
+        host: smtp.gmail.com
+        password: zlalqegllmojgzlw
+        port: 587
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+        username: emailservice199@gmail.com       
+        
+        
+    jpa: 
+        properties:
+            hibernate:
+#                format_sql: true
+        hibernate:
+            ddl-auto: update
+
+        show-sql: true
+    jackson:
+      time-zone: IST  
+
+logging:
+   file:
+    name: "C:/logs/intallysh-wisdom-service-error.log"
+   logback:
+    rollingpolicy:
+      file-name-pattern: C:/logs/intallysh-wisdom-service-%d{yyyy-MM-dd}.%i.log
+
+files:
+  storage: C:/eidikoportal/
+
+   
