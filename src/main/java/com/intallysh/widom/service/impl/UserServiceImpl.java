@@ -328,7 +328,7 @@ public class UserServiceImpl implements UserService {
 		}
 		User user = usersRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotProcessedException("Please Enter a valid User"));
-		if (!passwordEncoder.matches(changePasswordDto.getNewPassword(), user.getPassword())) {
+		if (!passwordEncoder.matches(changePasswordDto.getOldPassword(), user.getPassword())) {
 			throw new ResourceNotProcessedException("You have entered incorrect old password ...");
 		}
 		user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));

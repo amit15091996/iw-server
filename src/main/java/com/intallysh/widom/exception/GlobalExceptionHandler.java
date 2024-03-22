@@ -51,12 +51,12 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(ResourceNotProcessedException.class)
 	public ResponseEntity<ProblemDetail> handleResourceNotProcessedException(ResourceNotProcessedException ex) {
-		ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 		problemDetail.setProperty(ConstantValues.MESSAGE, ex.getMessage());
 		problemDetail.setProperty(ConstantValues.STATUS, ConstantValues.ERROR_MESSAGE);
-		problemDetail.setStatus(HttpStatus.NOT_FOUND);
+		problemDetail.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 		problemDetail.setType(ConstantValues.ERROR_MESSAGE_URL);
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
 	}
 	@ExceptionHandler(ForbiddenException.class)
 	public ResponseEntity<ProblemDetail> handleForBiddenException(ForbiddenException ex) {

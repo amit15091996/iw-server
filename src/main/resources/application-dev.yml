@@ -21,7 +21,7 @@ spring:
      
     mail:
         host: smtp.gmail.com
-        password: zlalqegllmojgzlw
+        password: uxmobsapevveephk
         port: 587
         properties:
             mail:
@@ -29,7 +29,7 @@ spring:
                     auth: true
                     starttls:
                         enable: true
-        username: emailservice199@gmail.com       
+        username: chandunawapara@gmail.com       
         
         
     jpa: 
