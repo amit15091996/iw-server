@@ -296,13 +296,17 @@ public class UserServiceImpl implements UserService {
 				forgotPasswordMailTemplate);
 		if (sendSimpleMail) {
 			try {
-				usersRepo.save(user);
+				user=usersRepo.save(user);
+				System.out.println("User Updated Successfully....");
+				
 				UserActivity activity = UserActivity.builder().userActId(UUID.randomUUID().toString())
-						.activityDoneBy(SecurityUtil.getCurrentUserDetails().getUserId())
+						.activityDoneBy(user.getUserId())
 						.activityDone("Password Reset sent to mail")
 						.modifiedOn(new Timestamp(System.currentTimeMillis())).userId(user.getUserId()).isRead(false)
 						.build();
+				System.out.println(activity.toString());
 				this.activityRepo.save(activity);
+				System.out.println("User Activity updated Successfully");
 				map.put("status", "Success");
 				map.put("message", "Password Sent to your mail : " + user.getEmail());
 			} catch (Exception e) {
