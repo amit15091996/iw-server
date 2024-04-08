@@ -10,7 +10,7 @@ public class IntallyshWidomApplication {
 private static final Logger logger = org.slf4j.LoggerFactory.getLogger(IntallyshWidomApplication.class);
 	public static void main(String[] args) {
 		SpringApplication.run(IntallyshWidomApplication.class, args);
-		logger.info("Open This Url for API Definitions :  "+"http://localhost:9190/swagger-ui/index.html");
+		logger.info("Open This Url for API Definitions :  "+"http://localhost:3389/swagger-ui/index.html");
 	}
 
 }
