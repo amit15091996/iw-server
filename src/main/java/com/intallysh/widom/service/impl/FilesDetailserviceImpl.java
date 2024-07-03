@@ -19,6 +19,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -241,6 +243,31 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 	}
 
 	@Override
+	public Map<String, Object> getFileByYearAndDateType(long userId, Date fromDate, Date toDate, Pageable pageable) {
+		Map<String, Object> map = new HashMap<>();
+		try {
+			Page<FileTransDetails> fileDetails = fileTransDetailsRepo.findByUserIdAndCustomDate(userId, fromDate,
+					toDate, pageable);
+			if (fileDetails.hasContent()) {
+				map.put("message", "Data Fetched Successfully");
+				map.put("fileTransDetails", fileDetails.getContent());
+			} else {
+				map.put("message", "No Data Found");
+				map.put("fileTransDetails", fileDetails.getContent()); // Ensure an empty list is returned if no content
+			}
+			map.put("currentPage", fileDetails.getNumber());
+			map.put("totalItems", fileDetails.getTotalElements());
+			map.put("totalPages", fileDetails.getTotalPages());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			map.put("message", "Error retrieving data");
+			map.put("fileTransDetails", null);
+		}
+		return map;
+	}
+
+	@Override
 	public Map<String, Object> getFileDetailByTransId(String transId) {
 
 		Map<String, Object> map = new HashMap<>();
@@ -334,5 +361,34 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 		map.put("status", "Success");
 		return map;
 	}
+
+	@Override
+	@Transactional
+	public ResponseEntity<Map<String, Object>> deleteFileByTransId(String transId) {
+	    Map<String, Object> map = new HashMap<>();
+	    HttpStatus status = HttpStatus.OK; // Default status
+
+	    try {
+	        int deletedCount = fileTransDetailsRepo.deleteByTransId(transId);
+	        if (deletedCount > 0) {
+	            map.put("file deleted successfully", deletedCount);
+	            map.put("status", "Success");
+	            status = HttpStatus.OK; // Set HTTP status to 200 OK
+	        } else {
+	            map.put("status", "Error");
+	            map.put("message", "No files found for transId: " + transId);
+	            status = HttpStatus.NOT_FOUND; // Set HTTP status to 404 Not Found
+	        }
+	    } catch (Exception e) {
+	        map.put("status", "Error");
+	        map.put("message", "Something went wrong, try again.");
+	        status = HttpStatus.INTERNAL_SERVER_ERROR; // Set HTTP status to 500 Internal Server Error
+	        e.printStackTrace();
+	        throw new ResourceNotProcessedException("Something went wrong, try again.");
+	    }
+
+	    return ResponseEntity.status(status).body(map);
+	}
+
 
 }

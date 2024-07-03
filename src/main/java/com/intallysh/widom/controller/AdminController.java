@@ -1,6 +1,9 @@
 package com.intallysh.widom.controller;
 
 import java.io.InputStream;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +14,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,7 +64,7 @@ public class AdminController {
 	@PostMapping("/upload-file/{userId}")
 	public ResponseEntity<Map<String, Object>> uploadFileToUser(@PathVariable("userId") long userId,
 			@Valid @ModelAttribute FileReqDto fileReqDto) throws Exception {
-		return ResponseEntity.ok().body(filesDetailService.uploadFileByAdmin(fileReqDto,userId));
+		return ResponseEntity.ok().body(filesDetailService.uploadFileByAdmin(fileReqDto, userId));
 	}
 
 	@GetMapping("/get-uploaded-file-years/{userId}")
@@ -82,6 +86,35 @@ public class AdminController {
 		}
 		Pageable paging = PageRequest.of(pageNo, pageSize, by);
 		return ResponseEntity.ok().body(filesDetailService.getFileByYearAndUserId(userId, year, paging));
+	}
+
+	@GetMapping("/get-filetransdetail-by-date")
+	public ResponseEntity<Map<String, Object>> getFileDetailByUserIdAndDate(@RequestParam long userId,
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String fromDate,
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String toDate,
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "reportDate") String sortBy,
+			@RequestParam(defaultValue = "ASC") String sortingOrder) {
+		try {
+			// Convert String dates to java.sql.Date objects
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date fromDateSql = new Date(sdf.parse(fromDate).getTime());
+			Date toDateSql = new Date(sdf.parse(toDate).getTime());
+
+			// Create Pageable object
+			Sort sort = sortingOrder.equals("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+			Pageable paging = PageRequest.of(pageNo, pageSize, sort);
+
+			// Call service method with converted dates
+			return ResponseEntity.ok()
+					.body(filesDetailService.getFileByYearAndDateType(userId, fromDateSql, toDateSql, paging));
+		} catch (ParseException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Invalid date format. Please use yyyy-MM-dd format for dates.");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResourceNotProcessedException("Error retrieving file details. Please try again later.");
+		}
 	}
 
 	@GetMapping("/get-all-filetransdetail")
@@ -232,5 +265,16 @@ public class AdminController {
 		Pageable paging = PageRequest.of(pageNo, pageSize, by);
 		return ResponseEntity.ok().body(activityService.getUserActivity(userId, paging));
 	}
+
+	  @DeleteMapping("/delete-file/{transId}")
+	    public ResponseEntity<Map<String, Object>> deleteFileByTransId(@PathVariable String transId) {
+	        try {
+	            ResponseEntity<Map<String, Object>> response = filesDetailService.deleteFileByTransId(transId);
+	            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new ResourceNotProcessedException("Error Deleting file with transId " + transId);
+	        }
+	    }
 
 }
