@@ -14,6 +14,7 @@ import com.intallysh.widom.service.FilesDetailService;
 import com.intallysh.widom.util.ConstantValues;
 import com.intallysh.widom.util.Utils;
 
+import ch.qos.logback.classic.Logger;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,7 +37,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.security.sasl.AuthenticationException;
 
@@ -363,32 +367,53 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 	}
 
 	@Override
-	@Transactional
-	public ResponseEntity<Map<String, Object>> deleteFileByTransId(String transId) {
-	    Map<String, Object> map = new HashMap<>();
-	    HttpStatus status = HttpStatus.OK; // Default status
+	@Transactional(rollbackOn = Exception.class)
+	public Map<String, Object> deleteFileByTransId(String transId) {
+		Map<String, Object> map = new HashMap<>();
 
-	    try {
-	        int deletedCount = fileTransDetailsRepo.deleteByTransId(transId);
-	        if (deletedCount > 0) {
-	            map.put("file deleted successfully", deletedCount);
-	            map.put("status", "Success");
-	            status = HttpStatus.OK; // Set HTTP status to 200 OK
-	        } else {
-	            map.put("status", "Error");
-	            map.put("message", "No files found for transId: " + transId);
-	            status = HttpStatus.NOT_FOUND; // Set HTTP status to 404 Not Found
-	        }
-	    } catch (Exception e) {
-	        map.put("status", "Error");
-	        map.put("message", "Something went wrong, try again.");
-	        status = HttpStatus.INTERNAL_SERVER_ERROR; // Set HTTP status to 500 Internal Server Error
-	        e.printStackTrace();
-	        throw new ResourceNotProcessedException("Something went wrong, try again.");
-	    }
+		FileTransDetails findByTransId = this.fileTransDetailsRepo.findByTransId(transId);
+		if (findByTransId != null) {
+			List<FilesDetail> fileDetailsList = this.filesDetailRepo.findByTransId(transId);
+			List<String> filePaths = fileDetailsList.stream().map(fd -> fd.getFileLocation() + "/" + fd.getFileName())
+					.collect(Collectors.toList());
+			System.out.println("Files to delete : " + filePaths);
+			try {
+				Utils.deleteFiles(filePaths);
+				filesDetailRepo.deleteAll(fileDetailsList);
+				fileTransDetailsRepo.delete(findByTransId);
+				map.put("message", "Files Deleted Successfully ...");
+				map.put("status", "Success");
 
-	    return ResponseEntity.status(status).body(map);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new ResourceNotProcessedException("Something is wrong try again");
+			}
+		} else {
+			throw new ResourceNotProcessedException("Trans Id is not available with Id : " + transId);
+		}
+
+		return map;
 	}
 
+	@Override
+	public Map<String, Object> deleteFileByFileId(String fileId) {
+		Map<String, Object> map = new HashMap<>();
+		FilesDetail filesDetail = this.filesDetailRepo.findById(Long.parseLong(fileId))
+				.orElseThrow(() -> new ResourceNotProcessedException("File Id not found"));
+		List<String> filePaths = new ArrayList<>();
+		filePaths.add(filesDetail.getFileLocation() + "/" + filesDetail.getFileName());
+		try {
+			Utils.deleteFiles(filePaths);
+			filesDetailRepo.delete(filesDetail);
+			map.put("message", "Files Deleted Successfully ...");
+			map.put("status", "Success");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResourceNotProcessedException("Something is wrong try again");
+		}
+
+		return map;
+	}
 
 }

@@ -269,11 +269,21 @@ public class AdminController {
 	  @DeleteMapping("/delete-file/{transId}")
 	    public ResponseEntity<Map<String, Object>> deleteFileByTransId(@PathVariable String transId) {
 	        try {
-	            ResponseEntity<Map<String, Object>> response = filesDetailService.deleteFileByTransId(transId);
-	            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+	           
+	            return ResponseEntity.ok().body(filesDetailService.deleteFileByTransId(transId));
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            throw new ResourceNotProcessedException("Error Deleting file with transId " + transId);
+	        }
+	    }
+	  @DeleteMapping("/delete-file-by-fileid/{fileId}")
+	    public ResponseEntity<Map<String, Object>> deleteFileByFileId(@PathVariable String fileId) {
+	        try {
+	           
+	            return ResponseEntity.ok().body(filesDetailService.deleteFileByFileId(fileId));
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new ResourceNotProcessedException("Error Deleting file with transId " + fileId);
 	        }
 	    }
 

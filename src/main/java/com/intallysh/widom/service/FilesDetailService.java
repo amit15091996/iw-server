@@ -30,5 +30,9 @@ public interface FilesDetailService {
 
 	public Map<String, Object> getFile(long fileId);
 	
-	public ResponseEntity<Map<String, Object>> deleteFileByTransId(String transId);
+	public  Map<String, Object>deleteFileByTransId(String transId);
+	
+	public  Map<String, Object>deleteFileByFileId(String fileId);
+	
+	
 }

@@ -1,6 +1,7 @@
 package com.intallysh.widom.repo;
 
 import java.sql.Date;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,5 +27,7 @@ public interface FileTransDetailsRepo extends JpaRepository<FileTransDetails, Lo
 	@Modifying
 	@Query("DELETE FROM FileTransDetails f WHERE f.transId = :transId")
 	int deleteByTransId(@Param("transId") String transId);
+
+	public FileTransDetails findByTransId(String transId);
 
 }
