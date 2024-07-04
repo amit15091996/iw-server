@@ -253,15 +253,19 @@ public class FilesDetailserviceImpl implements FilesDetailService {
 			Page<FileTransDetails> fileDetails = fileTransDetailsRepo.findByUserIdAndCustomDate(userId, fromDate,
 					toDate, pageable);
 			if (fileDetails.hasContent()) {
-				map.put("message", "Data Fetched Successfully");
+				map.put("message", "Data Fetched Successfully ...");
 				map.put("fileTransDetails", fileDetails.getContent());
+				System.out.println("---- " + map.put("fileTransDetails", fileDetails));
 			} else {
-				map.put("message", "No Data Found");
-				map.put("fileTransDetails", fileDetails.getContent()); // Ensure an empty list is returned if no content
+				map.put("message", "Data not available ...");
+				map.put("fileTransDetails", new ArrayList<>());
 			}
-			map.put("currentPage", fileDetails.getNumber());
-			map.put("totalItems", fileDetails.getTotalElements());
 			map.put("totalPages", fileDetails.getTotalPages());
+			map.put("totalResults", fileDetails.getTotalElements());
+			map.put("currentPage", fileDetails.getNumber());
+			map.put("noOfElements", fileDetails.getNumberOfElements());
+			map.put("isLastPage", fileDetails.isLast());
+			map.put("isFirstPage", fileDetails.isFirst());
 
 		} catch (Exception e) {
 			e.printStackTrace();
